@@ -149,6 +149,9 @@ class Graph:
         v_index = int(str_v[1:])
         return self.vertices[v_index-1]
 
+    def get_vertex(self, index):
+        return self.vertices[index-1]
+
     def remove_blocked_edges(self):
         res_g = deepcopy(self)
         tmp_edges = copy(res_g.edges)
@@ -157,6 +160,13 @@ class Graph:
                 e.vertex_1.connected_edges.remove(e)
                 e.vertex_2.connected_edges.remove(e)
                 res_g.edges.remove(e)
+
+    def get_ppl2save(self):
+        res = 0
+        for v in self.vertices:
+            if not v.is_shelter():
+                res += v.ppl_count
+        return res
 
     # def get_people_array(self):
     #     res = [0] * len(self.vertices)
