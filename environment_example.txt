@@ -2,6 +2,8 @@
 
 #V1 F 0.2            ; Vertex 1, probability of flooding 0.2 at t=0
 #V2 F 0.4            ; Vertex 2, probability of flooding 0.4 at t=0
+#V3 F 0            ; Vertex 2, probability of flooding 0.4 at t=0
+#V4 F 0            ; Vertex 2, probability of flooding 0.4 at t=0
                      ; Either assume flooding probability 0 by default,
                      ; or make sure to specify this probability for all vertices.
 #Ppersistence 0.9    ; Set persistence probability to 0.9

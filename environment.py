@@ -33,17 +33,19 @@ class Environment:
 
     ###############################
     def simulation(self):
-        start = timeit.default_timer()
-        print_debug("PRINTING ENVIRONMENT STATUS:")
-        self.print_env()
+        print("Enter evidences, finish with -1")
+        print("Examples of input:")
+        print("flooding at vertex 1 time 1 -> V11")
+        print("not blocked edge 2 time 0 -> not E20")
+        evidenceList = []
+        while (1):
+            ev = input()
+            if ev == '-1':
+                break
+            inputEvidence = ev.split()
+            evidenceList.append(inputEvidence)
 
-        self.env_time = self.env_time + 1
-        print "------------------------------------------------"
 
-        stop = timeit.default_timer()
-        print_debug("GAME OVER --- TIME: " + str(round(stop - start, 2)) + "s")
-        print_info("PRINTING ENVIRONMENT STATUS:")
-        self.print_env()
     ###############################
 
     ###############################

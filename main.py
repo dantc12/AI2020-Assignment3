@@ -6,8 +6,8 @@ ENVIRONMENT_SETTINGS_FILE = "environment_example.txt"
 env = Env(ENVIRONMENT_SETTINGS_FILE)
 
 print_info("OUR GRAPH:")
-print_info(env.graph)
+#print_info(env.graph)
 
-print "------------------------------------------------"
+print("------------------------------------------------")
 print_debug("STARTING SIMULATION:")
 env.simulation()

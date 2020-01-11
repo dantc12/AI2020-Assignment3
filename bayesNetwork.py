@@ -1,6 +1,6 @@
 import copy
 from helper_funcs import print_info
-
+from decimal import *
 
 class bayesNetwork:
     def __init__(self, env_graph):
@@ -87,12 +87,13 @@ class bayesNetwork:
                     print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = True) = " +
                                str(self.probabilityTable['1']))
                     print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = True) = " +
-                               str(1 - self.probabilityTable['1']))
+                               str(1 - Decimal(self.probabilityTable['1'])))
                     print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = False) = " +
                                str(self.probabilityTable['0']))
                     print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = False) = " +
-                               str(1 - self.probabilityTable['0']))
+                               str(1 - Decimal(self.probabilityTable['0'])))
             else:  # 2 Parents
+                print_info("EDGE " + str(self.index) + ", time " + str(self.time) + ":")
                 for pos_vals in [(True, True), (True, False), (False, True), (False, False)]:
                     print_info("\tP(Blockage = True | Flooding " + str(self.parents[0]) + " = " + str(pos_vals[0]) +
                                ", Flooding " + str(self.parents[1]) + " = " + str(pos_vals[1]) +
@@ -153,11 +154,12 @@ class bayesNetwork:
         for edge in self.env_graph.edges:
             v1 = edge.vertex_1
             v2 = edge.vertex_2
-            newEdge = self.node("E", edge.index, time, None, [], [], 3)
+            newEdge = self.node("E", edge.index, time, [], [], 3)
             newEdge.parents.append(self.getBayesNode("V", v1.index, time))
             newEdge.parents.append(self.getBayesNode("V", v2.index, time))
 
             q_i = 1 - 0.6 * (1 / float(edge.weight))
+            #newEdge.fillProbabilityTable([p_leakage, Decimal(1 - q_i).quantize(Decimal('.0001')), Decimal(1 - q_i).quantize(Decimal('.0001')), Decimal(1 - (q_i*q_i)).quantize(Decimal('.0001'))])  # [FF, FT, TF, TT] (2 parents)
             newEdge.fillProbabilityTable([p_leakage, 1 - q_i, 1 - q_i, 1 - (q_i*q_i)])  # [FF, FT, TF, TT] (2 parents)
             self.networkObjects.append(newEdge)
 
