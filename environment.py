@@ -1,4 +1,6 @@
+import bayesNetwork
 from graph import Graph
+from bayesNetwork import bayesNetwork
 from helper_funcs import print_debug, print_info, print_query
 import timeit
 
@@ -7,6 +9,7 @@ class Environment:
     def __init__(self, config_file_path):
         self.graph = Graph(config_file_path)
         self.env_time = 0
+        self.bayesNet = bayesNetwork(self.graph)
 
         self.dead_ppl = 0
         self.total_ppl = self.graph.get_ppl2save()

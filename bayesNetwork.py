@@ -1,5 +1,5 @@
 import copy
-from operator import itemgetter, attrgetter
+from helper_funcs import print_info
 
 
 class bayesNetwork:
@@ -8,7 +8,7 @@ class bayesNetwork:
         :type env_graph: graph.Graph
         """
         self.env_graph = env_graph
-        self.networkObjects = []
+        self.networkObjects = []  # type: list[bayesNetwork.node]
         self.buildNetworkFromGraph()
         self.buildNetworkFromGraph(time=1)
         self.printGraph()
@@ -76,6 +76,27 @@ class bayesNetwork:
                 s = bin(i)[2:]
                 s = "0" * (n - len(s)) + s
                 yield s
+
+        def printNodeInfo(self):
+            if self.n_type == 'V':
+                print_info("VERTEX " + str(self.index) + ", time " + str(self.time) + ":")
+                if not self.parents:
+                    print_info("\tP(Flooding = True) = " + str(self.probabilityTable['1']))
+                    print_info("\tP(Flooding = False) = " + str(1 - self.probabilityTable['1']))
+                elif len(self.parents) == 1:
+                    print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = True) = " +
+                               str(self.probabilityTable['1']))
+                    print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = True) = " +
+                               str(1 - self.probabilityTable['1']))
+                    print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = False) = " +
+                               str(self.probabilityTable['0']))
+                    print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = False) = " +
+                               str(1 - self.probabilityTable['0']))
+            else:  # 2 Parents
+                for pos_vals in [(True, True), (True, False), (False, True), (False, False)]:
+                    print_info("\tP(Blockage = True | Flooding " + str(self.parents[0]) + " = " + str(pos_vals[0]) +
+                               ", Flooding " + str(self.parents[1]) + " = " + str(pos_vals[1]) +
+                               ") = " + str(self.probabilityTable[bin(pos_vals[0])[2:] + bin(pos_vals[1])[2:]]))
 
         def __str__(self):
             return str(self.n_type) + str(self.index) + str(self.time)
@@ -216,10 +237,7 @@ class bayesNetwork:
         return self.networkObjects
 
     def printGraph(self):
-        pass  # TODO
-
-
-
-
-
-
+        self.sort_network_objects()
+        for n in self.networkObjects:
+            n.printNodeInfo()
+            # more TODO here
