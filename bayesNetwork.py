@@ -1,4 +1,5 @@
 import copy
+from operator import itemgetter, attrgetter
 
 
 class bayesNetwork:
@@ -15,8 +16,8 @@ class bayesNetwork:
     class node:
         def __init__(self, n_type, index, time, parents, children, weight=None):
             """
-            :type children: list[node]
-            :type parents: list[node]
+            :type children: list[bayesNetwork.node]
+            :type parents: list[bayesNetwork.node]
             :type n_type: str
             """
             self.n_type = n_type
@@ -39,6 +40,34 @@ class bayesNetwork:
                     self.probabilityTable[str(perm)] = str(probabilities[i])
                     i += 1
 
+        def varValFromEvidence(self, evidence_list):
+            """
+            :type evidence_list: list[bayesNetwork.VarWithVal]
+            """
+            for e in evidence_list:
+                if e.variable == self:
+                    return e.value
+            return None
+
+        def p_varValGivenParents(self, self_value, evidence_list):
+            """
+            :type self_value: bool
+            :type evidence_list: list[bayesNetwork.VarWithVal]
+            """
+            if not self.parents:
+                self_true_val = self.probabilityTable['1']
+            elif len(self.parents) == 1:
+                parent1_bin_val = bin(self.parents[0].varValFromEvidence(evidence_list))[2:]
+                self_true_val = self.probabilityTable[parent1_bin_val]
+            else:  # 2 Parents
+                parent1_bin_val = bin(self.parents[0].varValFromEvidence(evidence_list))[2:]
+                parent2_bin_val = bin(self.parents[1].varValFromEvidence(evidence_list))[2:]
+                self_true_val = self.probabilityTable[parent1_bin_val + parent2_bin_val]
+            if self_value:  # Asked for self p(True) value
+                return self_true_val
+            else:
+                return 1 - self_true_val
+
         @staticmethod
         def perms(n):
             if not n:
@@ -50,6 +79,27 @@ class bayesNetwork:
 
         def __str__(self):
             return str(self.n_type) + str(self.index) + str(self.time)
+
+        def __lt__(self, other):
+            if isinstance(other, bayesNetwork.node):
+                if self.time != other.time:
+                    return self.time < other.time
+                else:
+                    if self.n_type != other.n_type:
+                        return self.n_type == 'V'
+                    else:
+                        return self.index < other.index
+            raise Exception("Problem comparing nodes")
+
+        def __le__(self, other):
+            if isinstance(other, bayesNetwork.node):
+                if self.time != other.time:
+                    return self.time < other.time
+                else:
+                    if self.n_type != other.n_type:
+                        return self.n_type == 'V'
+                    else:
+                        return self.index <= other.index
 
         def __eq__(self, other):
             if isinstance(other, bayesNetwork.node):
@@ -90,6 +140,14 @@ class bayesNetwork:
             newEdge.fillProbabilityTable([p_leakage, 1 - q_i, 1 - q_i, 1 - (q_i*q_i)])  # [FF, FT, TF, TT] (2 parents)
             self.networkObjects.append(newEdge)
 
+    def sort_network_objects(self):
+        """
+        Run a topological sort to determine the order of the variables.
+        All parents of a node has to be added before the node is added, and ties
+        are broken alphabetically.
+        """
+        self.networkObjects.sort()
+
     # Assuming this is called with variables ordered
     def enumerate_ask(self, query, evidence):
         """
@@ -108,6 +166,8 @@ class bayesNetwork:
         ev_1.append(x_true)
         ev_2.append(x_false)
 
+        # Sorting variables first
+        self.sort_network_objects()
         # Results coming in for each option of query var
         res_prob_table[0] = self.enumerate_all(self.getVars(), ev_1)
         res_prob_table[1] = self.enumerate_all(self.getVars(), ev_2)
@@ -120,25 +180,31 @@ class bayesNetwork:
         return res_prob_table
 
     @staticmethod
-    def enumerate_all(vars, evidence):
+    def enumerate_all(variables, evidence_list):
         """
-        :type evidence: list[bayesNetwork.VarWithVal]
-        :type vars: list[bayesNetwork.node]
+        Variables come sorted!
+        :type evidence_list: list[bayesNetwork.VarWithVal]
+        :type variables: list[bayesNetwork.node]
         """
-        if not vars:
+        if not variables:
             return 1.0
-        y = vars[0]
-        y_has_value_in_evidence = False
-        y_with_val = None
-        for e in evidence:
-            if e.variable == y:
-                y_has_value_in_evidence = True
-                y_with_val = e
-                break
-        if y_has_value_in_evidence:
-            p_y_given_parents = 0.0
-            if y_with_val.value == True:
-                p_y_given_parents = y.probabilityTable  # TODO
+        y = variables[0]
+        y_val = y.varValFromEvidence(evidence_list)
+        if y_val is not None:
+            y_p_givenParents_val = y.p_varValGivenParents(y_val, evidence_list)
+            return y_p_givenParents_val * bayesNetwork.enumerate_all(variables[1:], evidence_list)
+        else:
+            # Extending evidence with possible y value
+            ev_y_true = copy.copy(evidence_list)
+            ev_y_false = copy.copy(evidence_list)
+            ev_y_true.append(bayesNetwork.VarWithVal(y, True))
+            ev_y_false.append(bayesNetwork.VarWithVal(y, False))
+
+            y_true_p_givenParents_val = y.p_varValGivenParents(True, evidence_list)
+            y_false_p_givenParents_val = y.p_varValGivenParents(False, evidence_list)
+
+            return ((y_true_p_givenParents_val * bayesNetwork.enumerate_all(variables[1:], ev_y_true)) +
+                    (y_false_p_givenParents_val * bayesNetwork.enumerate_all(variables[1:], ev_y_false)))
 
     def getBayesNode(self, n_type, index, time=0):
         for node in self.networkObjects:
