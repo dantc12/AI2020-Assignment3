@@ -4,9 +4,6 @@ import timeit
 
 
 class Environment:
-
-    P_LEAKAGE = 0.001
-
     def __init__(self, config_file_path):
         self.graph = Graph(config_file_path)
         self.env_time = 0

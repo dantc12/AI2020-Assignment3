@@ -86,11 +86,15 @@ class Edge:
 
 
 class Graph:
+
+    P_LEAKAGE = 0.001
+
     def __init__(self, file_path):
         self.vertices = []  # type: list[Vertex]
         self.edges = []  # type: list[Edge]
         self.number_of_vertices = 0
         self.p_persistence = 0.0
+        self.p_leakage = Graph.P_LEAKAGE
 
         # Reading configuration file
         n = None
