@@ -2,6 +2,7 @@ import copy
 from helper_funcs import print_info
 from decimal import *
 
+
 class bayesNetwork:
     def __init__(self, env_graph):
         """
@@ -37,7 +38,7 @@ class bayesNetwork:
                 permutations = list(self.perms(len(self.parents)))
                 i = 0
                 for perm in permutations:
-                    self.probabilityTable[str(perm)] = str(probabilities[i])
+                    self.probabilityTable[str(perm)] = probabilities[i]
                     i += 1
 
         def varValFromEvidence(self, evidence_list):
@@ -87,11 +88,11 @@ class bayesNetwork:
                     print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = True) = " +
                                str(self.probabilityTable['1']))
                     print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = True) = " +
-                               str(1 - Decimal(self.probabilityTable['1'])))
+                               str(1 - self.probabilityTable['1']))
                     print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = False) = " +
                                str(self.probabilityTable['0']))
                     print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = False) = " +
-                               str(1 - Decimal(self.probabilityTable['0'])))
+                               str(1 - self.probabilityTable['0']))
             else:  # 2 Parents
                 print_info("EDGE " + str(self.index) + ", time " + str(self.time) + ":")
                 for pos_vals in [(True, True), (True, False), (False, True), (False, False)]:
@@ -171,17 +172,16 @@ class bayesNetwork:
         """
         self.networkObjects.sort()
 
-    # Assuming this is called with variables ordered
     def enumerate_ask(self, query, evidence):
         """
-        :type evidence: list[VarWithVal]
-        :type query: VarWithVal
+        :type evidence: list[bayesNetwork.VarWithVal]
+        :type query: bayesNetwork.node
         """
         res_prob_table = [0.0, 0.0]
 
         # For each value of query var
-        x_true = self.VarWithVal(query.variable, True)
-        x_false = self.VarWithVal(query.variable, False)
+        x_true = self.VarWithVal(query, True)
+        x_false = self.VarWithVal(query, False)
 
         # Extending evidence with possible var value
         ev_1 = copy.copy(evidence)
@@ -192,8 +192,8 @@ class bayesNetwork:
         # Sorting variables first
         self.sort_network_objects()
         # Results coming in for each option of query var
-        res_prob_table[0] = self.enumerate_all(self.getVars(), ev_1)
-        res_prob_table[1] = self.enumerate_all(self.getVars(), ev_2)
+        res_prob_table[0] = self.enumerate_all(self.getVars(), ev_1)  # True
+        res_prob_table[1] = self.enumerate_all(self.getVars(), ev_2)  # False
 
         # Normalising
         norm_scale = sum(res_prob_table)
@@ -228,6 +228,21 @@ class bayesNetwork:
 
             return ((y_true_p_givenParents_val * bayesNetwork.enumerate_all(variables[1:], ev_y_true)) +
                     (y_false_p_givenParents_val * bayesNetwork.enumerate_all(variables[1:], ev_y_false)))
+
+    def query_floodings(self, evidence_list):
+        print_info("Printing probability that each of the vertices is flooded:")
+        flood_nodes = [n for n in self.networkObjects if n.n_type == 'V']
+        for fl_node in flood_nodes:
+            flood_chances = self.enumerate_ask(fl_node, evidence_list)
+            print_info("\tP(" + str(fl_node) + " Flooding = True) = " + str(flood_chances[0]))
+
+    def query_blockages(self, evidence_list):
+        print_info("Printing probability that each of the edges is blocked:")
+        blockage_nodes = [n for n in self.networkObjects if n.n_type == 'E']
+        for bl_node in blockage_nodes:
+            blockage_chances = self.enumerate_ask(bl_node, evidence_list)
+            print_info("\tP(" + str(bl_node) + " Blockage = True) = " + str(blockage_chances[0]))
+
 
     def getBayesNode(self, n_type, index, time=0):
         for node in self.networkObjects:

@@ -186,14 +186,14 @@ class Graph:
     #     return res
 
     def __str__(self):
-        s = str(self.vertices[0]) + "(D" + str(self.vertices[0].deadline) + ", "
+        s = str(self.vertices[0]) + "(P " + str(self.vertices[0].pv) + ", "
         if self.vertices[0].is_shelter():
             s = s + str(self.vertices[0].v_type)
         else:
             s = s + "P" + str(self.vertices[0].ppl_count)
         s = s + ")"
         for v in self.vertices[1:]:
-            s = s + ", " + str(v) + "(D" + str(v.deadline) + ", "
+            s = s + ", " + str(v) + "(P " + str(v.pv) + ", "
             if v.is_shelter():
                 s = s + str(v.v_type)
             else:
