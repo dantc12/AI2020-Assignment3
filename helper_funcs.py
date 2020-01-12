@@ -13,21 +13,21 @@ def print_debug(s):
     # return None
     ss = str(s)
     if ss.find("HURRICANE") > -1:
-        print bcolors.FAIL + "DEBUG:   " + ss + bcolors.ENDC
+        print(bcolors.FAIL + "DEBUG:   " + ss + bcolors.ENDC)
     elif ss.find("SEQ") > -1 or ss.find("HEUR") > -1 or ss.find("PRUNE") > -1:
-        print bcolors.WARNING + "DEBUG:   " + ss + bcolors.ENDC
+        print(bcolors.WARNING + "DEBUG:   " + ss + bcolors.ENDC)
     elif ss.find("PICK") > -1 or ss.find("DROP") > -1 or ss.find("ARRIV") > -1 or ss.find("GOAL") > -1:
-        print bcolors.OKGREEN + "DEBUG:   " + ss + bcolors.ENDC
+        print(bcolors.OKGREEN + "DEBUG:   " + ss + bcolors.ENDC)
     else:
-        print bcolors.OKBLUE + "DEBUG:   " + ss + bcolors.ENDC
+        print(bcolors.OKBLUE + "DEBUG:   " + ss + bcolors.ENDC)
 
 
 def print_info(s):
-    print "INFO:    " + str(s)
+    print("INFO:    " + str(s))
 
 
 def print_query(s):
-    print "QUERY:   " + str(s)
+    print("QUERY:   " + str(s))
 
 
 def get_min_index(arr):

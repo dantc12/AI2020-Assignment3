@@ -195,6 +195,17 @@ class bayesNetwork:
         res_prob_table[0] = self.enumerate_all(self.getVars(), ev_1)  # True
         res_prob_table[1] = self.enumerate_all(self.getVars(), ev_2)  # False
 
+        #  Given the evidence the probability of this specific evidence is 1 or 0
+        for ev in evidence:
+            if self.getNameByBayesNode(ev.variable) == self.getNameByBayesNode(x_true.variable):
+                if ev.value is True:
+                    res_prob_table[0] = 1
+                    res_prob_table[1] = 0
+                else:
+                    res_prob_table[0] = 0
+                    res_prob_table[1] = 1
+                break
+
         # Normalising
         norm_scale = sum(res_prob_table)
         res_prob_table[0] = res_prob_table[0] / norm_scale
@@ -243,6 +254,22 @@ class bayesNetwork:
             blockage_chances = self.enumerate_ask(bl_node, evidence_list)
             print_info("\tP(" + str(bl_node) + " Blockage = True) = " + str(blockage_chances[0]))
 
+    def query_pathNotBlocked(self, path, evidence_list):
+        finalProb = 1
+        v1, v2 = self.getEdgeVertexesVariables(path[0])
+        finalProb = self.enumerate_ask(v1, evidence_list)[1]
+        evidence_list.append(self.VarWithVal(v1, False))
+
+        for edge in path:
+            v1, v2 = self.getEdgeVertexesVariables(edge)
+            finalProb = finalProb * self.enumerate_ask(edge, evidence_list)[1]
+            evidence_list.append(self.VarWithVal(edge, False))
+            val = self.enumerate_ask(v2, evidence_list)[1]
+            finalProb = finalProb * self.enumerate_ask(v2, evidence_list)[1]
+            evidence_list.append(self.VarWithVal(v2, False))
+
+        return finalProb
+
 
     def getBayesNode(self, n_type, index, time=0):
         for node in self.networkObjects:
@@ -258,3 +285,25 @@ class bayesNetwork:
         for n in self.networkObjects:
             n.printNodeInfo()
             # more TODO here
+
+    def getBayesNodeByName(self, varName):
+        for var in self.networkObjects:
+            varStr = str(var.n_type) + str(var.index) + str(var.time)
+            if varStr == varName:
+                return var
+        return -1
+
+    def getNameByBayesNode(self, node):
+        return str(node.n_type) + str(node.index) + str(node.time)
+
+    def getEdgeVertexesVariables(self, edge):
+        edgeFullName = self.getNameByBayesNode(edge)
+        edgeName = edgeFullName[0:2]
+        time = edgeFullName[2]
+        edgeInGraph = self.env_graph.get_edge_from_string(edgeName)
+        v1 = edgeInGraph.vertex_1
+        v2 = edgeInGraph.vertex_2
+        v1Node = self.getBayesNodeByName(str(v1) + str(time))
+        v2Node = self.getBayesNodeByName(str(v2) + str(time))
+
+        return v1Node, v2Node

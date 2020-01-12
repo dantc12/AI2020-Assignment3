@@ -33,24 +33,32 @@ class Environment:
 
     ###############################
     def simulation(self):
-
-        print_query("Enter what you want to do:")
-        print_query("\t1. Add piece of evidence to evidence list.")
-        print_query("\t2. Do probabilistic reasoning.")
-        print_query("\t3. Reset evidence list to empty")
-        print_query("\t4. Quit the program.")
-
         evidenceList = []
-        inp = input()
+        inp=1
         while 1 <= inp <= 3:
+            print_query("Enter what you want to do:")
+            print_query("\t1. Add piece of evidence to evidence list.")
+            print_query("\t2. Do probabilistic reasoning.")
+            print_query("\t3. Reset evidence list to empty")
+            print_query("\t4. Quit the program.")
+            print_query("")
+            inp = int(input())
+
             if inp == 1:
                 print_info("You chose to add evidence.")
                 print_info("Examples of evidence input:")
                 print_info("\tFlooding at vertex 1 at time 1 -> V11")
                 print_info("\tEdge 2 not blocked at time 0 -> not E20")
                 print_query("Enter evidence:")
-                ev = str(raw_input())
-                evidenceList.append(ev)
+                evInput = str(input())
+                ev = evInput.split()
+                if len(ev) is 1:
+                    evidenceVar = self.bayesNet.getBayesNodeByName(ev[0])
+                    evidenceList.append(bayesNetwork.VarWithVal(evidenceVar, True))
+                else:
+                    evidenceVar = self.bayesNet.getBayesNodeByName(ev[1])
+                    evidenceList.append(bayesNetwork.VarWithVal(evidenceVar, False))
+
             elif inp == 2:
                 print_info("You chose to do probabilistic reasoning. Choose your query:")
                 print_query("\t1. What is the probability that each of the vertices is flooded?")
@@ -59,23 +67,25 @@ class Environment:
                 print_query("\t4. BONUS: What is the path between 2 given vertices that has" +
                             " the highest probability of being free from blockages at time t=1?")
                 print_query("\t5. Go back.")
-                query_choice = input()
+                query_choice = int(input())
                 if query_choice == 1:
                     self.bayesNet.query_floodings(evidenceList)
                 elif query_choice == 2:
                     self.bayesNet.query_blockages(evidenceList)
                 elif query_choice == 3:
-                    pass
+                    print_query("\tEnter Path: for example E11 E12")
+                    pathInput = str(input())
+                    pathElements = pathInput.split()
+                    path = []
+                    for edge in pathElements:
+                        pathElement = self.bayesNet.getBayesNodeByName(edge)
+                        path.append(pathElement)
+
+                    self.bayesNet.query_pathNotBlocked(path, evidenceList)
                 elif query_choice == 4:
                     pass
             elif inp == 3:
                 evidenceList = []
-
-            print_query("Enter what would you want to do next:")
-            print_query("\t1. Add piece of evidence to evidence list.")
-            print_query("\t2. Do probabilistic reasoning.")
-            print_query("\t3. Reset evidence list to empty")
-            print_query("\t4. Quit the program.")
 
 
     ###############################
