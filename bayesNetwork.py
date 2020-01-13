@@ -197,7 +197,7 @@ class bayesNetwork:
 
         #  Given the evidence the probability of this specific evidence is 1 or 0
         for ev in evidence:
-            if self.getNameByBayesNode(ev.variable) == self.getNameByBayesNode(x_true.variable):
+            if str(ev.variable) == str(x_true.variable):
                 if ev.value is True:
                     res_prob_table[0] = 1
                     res_prob_table[1] = 0
@@ -255,7 +255,7 @@ class bayesNetwork:
             print_info("\tP(" + str(bl_node) + " Blockage = True) = " + str(blockage_chances[0]))
 
     def query_pathNotBlocked(self, path, evidence_list):
-        finalProb = 1
+        # finalProb = 1
         v1, v2 = self.getEdgeVertexesVariables(path[0])
         finalProb = self.enumerate_ask(v1, evidence_list)[1]
         evidence_list.append(self.VarWithVal(v1, False))
@@ -269,7 +269,6 @@ class bayesNetwork:
             evidence_list.append(self.VarWithVal(v2, False))
 
         return finalProb
-
 
     def getBayesNode(self, n_type, index, time=0):
         for node in self.networkObjects:
@@ -288,18 +287,18 @@ class bayesNetwork:
 
     def getBayesNodeByName(self, varName):
         for var in self.networkObjects:
-            varStr = str(var.n_type) + str(var.index) + str(var.time)
+            varStr = str(var)
             if varStr == varName:
                 return var
         return -1
 
-    def getNameByBayesNode(self, node):
-        return str(node.n_type) + str(node.index) + str(node.time)
-
-    def getEdgeVertexesVariables(self, edge):
-        edgeFullName = self.getNameByBayesNode(edge)
-        edgeName = edgeFullName[0:2]
-        time = edgeFullName[2]
+    def getEdgeVertexesVariables(self, edge_node):
+        """
+        :type edge_node: bayesNetwork.node
+        """
+        edgeNodeFullName = str(edge_node)
+        edgeName = edgeNodeFullName[0:2]
+        time = edge_node.time
         edgeInGraph = self.env_graph.get_edge_from_string(edgeName)
         v1 = edgeInGraph.vertex_1
         v2 = edgeInGraph.vertex_2

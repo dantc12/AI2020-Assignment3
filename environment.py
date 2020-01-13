@@ -34,14 +34,13 @@ class Environment:
     ###############################
     def simulation(self):
         evidenceList = []
-        inp=1
+        inp = 1
         while 1 <= inp <= 3:
             print_query("Enter what you want to do:")
             print_query("\t1. Add piece of evidence to evidence list.")
             print_query("\t2. Do probabilistic reasoning.")
             print_query("\t3. Reset evidence list to empty")
             print_query("\t4. Quit the program.")
-            print_query("")
             inp = int(input())
 
             if inp == 1:
@@ -50,8 +49,7 @@ class Environment:
                 print_info("\tFlooding at vertex 1 at time 1 -> V11")
                 print_info("\tEdge 2 not blocked at time 0 -> not E20")
                 print_query("Enter evidence:")
-                evInput = str(input())
-                ev = evInput.split()
+                ev = str(input()).split()
                 if len(ev) is 1:
                     evidenceVar = self.bayesNet.getBayesNodeByName(ev[0])
                     evidenceList.append(bayesNetwork.VarWithVal(evidenceVar, True))
@@ -73,9 +71,9 @@ class Environment:
                 elif query_choice == 2:
                     self.bayesNet.query_blockages(evidenceList)
                 elif query_choice == 3:
-                    print_query("\tEnter Path: for example E11 E12")
-                    pathInput = str(input())
-                    pathElements = pathInput.split()
+                    print_query("Enter Path:")
+                    print_query("\tFor example: E11 E12")
+                    pathElements = str(input()).split()
                     path = []
                     for edge in pathElements:
                         pathElement = self.bayesNet.getBayesNodeByName(edge)
@@ -86,6 +84,12 @@ class Environment:
                     pass
             elif inp == 3:
                 evidenceList = []
+            print_query("Enter what would you want to do next:")
+            print_query("\t1. Add piece of evidence to evidence list.")
+            print_query("\t2. Do probabilistic reasoning.")
+            print_query("\t3. Reset evidence list to empty")
+            print_query("\t4. Quit the program.")
+            inp = int(input())
 
 
     ###############################
