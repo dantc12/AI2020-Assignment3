@@ -33,12 +33,12 @@ class bayesNetwork:
         # Probabilites: [p(T)] (no parents), [F, T] (1 parent), [FF, FT, TF, TT] (2 parents)
         def fillProbabilityTable(self, probabilities):
             if not self.parents:
-                self.probabilityTable['1'] = round(probabilities[0], 2)
+                self.probabilityTable['1'] = round(probabilities[0], 5)
             else:
                 permutations = list(self.perms(len(self.parents)))
                 i = 0
                 for perm in permutations:
-                    self.probabilityTable[str(perm)] = round(probabilities[i], 2)
+                    self.probabilityTable[str(perm)] = round(probabilities[i], 5)
                     i += 1
 
         def varValFromEvidence(self, evidence_list):

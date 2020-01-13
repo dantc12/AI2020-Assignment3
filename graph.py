@@ -113,6 +113,13 @@ class Graph:
                     self.vertices.append(Vertex(vertex_index, vertex_fld_chance, self))
                     print_debug("Got V" + str(vertex_index) + ": fld_chance=" + str(vertex_fld_chance))
                 elif line_info_split[0] == 'Ppersistence':  # Ppersistence ppersistence
+                    # We're done with vertices, so put this check here:
+                    inp_v_len = len(self.vertices)
+                    if n != inp_v_len:
+                        print_info("N is different from number of actual vertices. adding probability 0 to them!")
+                        for i in range(n)[inp_v_len:]:
+                            self.vertices.append(Vertex(i+1, 0.0, self))
+                    # Back to persistence :)
                     self.p_persistence = float(line_info_split[1])
                     print_debug("Got Ppersistence=" + str(self.p_persistence))
                 elif line_info[0] == 'E':  # Ex x x Wx
@@ -127,8 +134,8 @@ class Graph:
                     print_debug("Got E" + str(edge_index))
 
         f.close()
-        if n != len(self.vertices):
-            raise Exception("N is different from number of actual vertices.")
+
+
         print_debug("---------------------Done---------------------")
 
     def num_of_roads(self):
