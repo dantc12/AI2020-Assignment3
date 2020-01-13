@@ -66,22 +66,28 @@ class Environment:
                             " the highest probability of being free from blockages at time t=1?")
                 print_query("\t5. Go back.")
                 query_choice = int(input())
+                print_info("Given our evidence: " + str([str(ev) for ev in evidenceList]))
                 if query_choice == 1:
                     self.bayesNet.query_floodings(evidenceList)
                 elif query_choice == 2:
                     self.bayesNet.query_blockages(evidenceList)
                 elif query_choice == 3:
                     print_query("Enter Path:")
-                    print_query("\tFor example: E11 E12")
+                    print_query("\tFor example: E11 E21")
                     pathElements = str(input()).split()
                     path = []
                     for edge in pathElements:
                         pathElement = self.bayesNet.getBayesNodeByName(edge)
                         path.append(pathElement)
 
-                    self.bayesNet.query_pathNotBlocked(path, evidenceList)
+                    res = self.bayesNet.query_pathNotBlocked(path, evidenceList)
+                    print_info("P(Path not blocked = True) = " + str(res))
                 elif query_choice == 4:
+                    # best_p = 0
+                    # for i in range(len(self.graph.vertices)):
+                    #     for j in range(i+1, len(self.graph.vertices)):
                     pass
+
             elif inp == 3:
                 evidenceList = []
 

@@ -138,6 +138,9 @@ class bayesNetwork:
             self.variable = variable
             self.value = value
 
+        def __str__(self):
+            return "(" + str(self.variable) + ", " + str(self.value) + ")"
+
     def buildNetworkFromGraph(self, time=0):
         p_persistence = self.env_graph.p_persistence
         p_leakage = self.env_graph.p_leakage
@@ -160,7 +163,9 @@ class bayesNetwork:
             newEdge.parents.append(self.getBayesNode("V", v2.index, time))
 
             q_i = 1 - 0.6 * (1 / float(edge.weight))
-            #newEdge.fillProbabilityTable([p_leakage, Decimal(1 - q_i).quantize(Decimal('.0001')), Decimal(1 - q_i).quantize(Decimal('.0001')), Decimal(1 - (q_i*q_i)).quantize(Decimal('.0001'))])  # [FF, FT, TF, TT] (2 parents)
+            # newEdge.fillProbabilityTable([p_leakage, Decimal(1 - q_i).quantize(Decimal('.0001')), \
+            # Decimal(1 - q_i).quantize(Decimal('.0001')), Decimal(1 - (q_i*q_i)).quantize(Decimal('.0001'))])  \
+            # [FF, FT, TF, TT] (2 parents)
             newEdge.fillProbabilityTable([p_leakage, 1 - q_i, 1 - q_i, 1 - (q_i*q_i)])  # [FF, FT, TF, TT] (2 parents)
             self.networkObjects.append(newEdge)
 
@@ -312,7 +317,7 @@ class bayesNetwork:
             varStr = str(var)
             if varStr == varName:
                 return var
-        return -1
+        raise Exception("No such edge " + varName)
 
     def getEdgeVertexesVariables(self, edge_node):
         """
