@@ -84,12 +84,6 @@ class Environment:
                     pass
             elif inp == 3:
                 evidenceList = []
-            print_query("Enter what would you want to do next:")
-            print_query("\t1. Add piece of evidence to evidence list.")
-            print_query("\t2. Do probabilistic reasoning.")
-            print_query("\t3. Reset evidence list to empty")
-            print_query("\t4. Quit the program.")
-            inp = int(input())
 
 
     ###############################

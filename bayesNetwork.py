@@ -33,12 +33,12 @@ class bayesNetwork:
         # Probabilites: [p(T)] (no parents), [F, T] (1 parent), [FF, FT, TF, TT] (2 parents)
         def fillProbabilityTable(self, probabilities):
             if not self.parents:
-                self.probabilityTable['1'] = probabilities[0]
+                self.probabilityTable['1'] = round(probabilities[0], 2)
             else:
                 permutations = list(self.perms(len(self.parents)))
                 i = 0
                 for perm in permutations:
-                    self.probabilityTable[str(perm)] = probabilities[i]
+                    self.probabilityTable[str(perm)] = round(probabilities[i], 2)
                     i += 1
 
         def varValFromEvidence(self, evidence_list):
@@ -191,9 +191,6 @@ class bayesNetwork:
 
         # Sorting variables first
         self.sort_network_objects()
-        # Results coming in for each option of query var
-        res_prob_table[0] = self.enumerate_all(self.getVars(), ev_1)  # True
-        res_prob_table[1] = self.enumerate_all(self.getVars(), ev_2)  # False
 
         #  Given the evidence the probability of this specific evidence is 1 or 0
         for ev in evidence:
@@ -204,12 +201,36 @@ class bayesNetwork:
                 else:
                     res_prob_table[0] = 0
                     res_prob_table[1] = 1
-                break
+                return res_prob_table
+
+        # Choosing the relevant nodes
+        relevant_vars = []
+        tmp_n_queue = [query]
+        while tmp_n_queue:
+            tmp_n = tmp_n_queue[0]
+            relevant_vars = tmp_n.parents + relevant_vars
+            tmp_n_queue += tmp_n.parents
+            tmp_n_queue.remove(tmp_n_queue[0])
+        relevant_vars += [query]
+        tmp_n_queue = [query]
+        while tmp_n_queue:
+            tmp_n = tmp_n_queue[0]
+            relevant_vars += tmp_n.children
+            tmp_n_queue += tmp_n.children
+            tmp_n_queue.remove(tmp_n_queue[0])
+        relevant_vars.sort()
+        # relevant_vars = query.parents + [query] + query.children
+        # relevant_vars = self.getVars()
+
+        # Results coming in for each option of query var
+        res_prob_table[0] = self.enumerate_all(relevant_vars, ev_1)  # True
+        res_prob_table[1] = self.enumerate_all(relevant_vars, ev_2)  # False
 
         # Normalising
         norm_scale = sum(res_prob_table)
-        res_prob_table[0] = res_prob_table[0] / norm_scale
-        res_prob_table[1] = res_prob_table[1] / norm_scale
+        if norm_scale != 0:
+            res_prob_table[0] = res_prob_table[0] / norm_scale
+            res_prob_table[1] = res_prob_table[1] / norm_scale
 
         return res_prob_table
 
@@ -256,17 +277,18 @@ class bayesNetwork:
 
     def query_pathNotBlocked(self, path, evidence_list):
         # finalProb = 1
+        ev_list = copy.copy(evidence_list)
         v1, v2 = self.getEdgeVertexesVariables(path[0])
-        finalProb = self.enumerate_ask(v1, evidence_list)[1]
-        evidence_list.append(self.VarWithVal(v1, False))
+        finalProb = self.enumerate_ask(v1, ev_list)[1]
+        ev_list.append(self.VarWithVal(v1, False))
 
         for edge in path:
             v1, v2 = self.getEdgeVertexesVariables(edge)
-            finalProb = finalProb * self.enumerate_ask(edge, evidence_list)[1]
-            evidence_list.append(self.VarWithVal(edge, False))
-            val = self.enumerate_ask(v2, evidence_list)[1]
-            finalProb = finalProb * self.enumerate_ask(v2, evidence_list)[1]
-            evidence_list.append(self.VarWithVal(v2, False))
+            finalProb = finalProb * self.enumerate_ask(edge, ev_list)[1]
+            ev_list.append(self.VarWithVal(edge, False))
+            # val = self.enumerate_ask(v2, evidence_list)[1]
+            finalProb = finalProb * self.enumerate_ask(v2, ev_list)[1]
+            ev_list.append(self.VarWithVal(v2, False))
 
         return finalProb
 
