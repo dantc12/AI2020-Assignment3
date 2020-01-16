@@ -179,6 +179,23 @@ class Graph:
                 res += v.ppl_count
         return res
 
+    def get_all_paths(self, source_vertex, dest_vertex, curr_path=[]):
+        """
+        :type dest_vertex: Vertex
+        :type source_vertex: Vertex
+        """
+        path = curr_path + [source_vertex]
+        if source_vertex == dest_vertex:
+            return [path]
+        paths = []
+        for v in self.vertices:
+            if v not in path:
+                further_paths = self.get_all_paths(v, dest_vertex, path)
+                for further_path in further_paths:
+                    paths.append(further_path)
+        return paths
+
+
     # def get_people_array(self):
     #     res = [0] * len(self.vertices)
     #     for v in self.vertices:

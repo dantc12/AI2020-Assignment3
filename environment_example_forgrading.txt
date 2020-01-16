@@ -1,0 +1,14 @@
+#N 4                 ; number of vertices n in graph (from 1 to n)
+
+#V1 F 0.2            ; Vertex 1, probability of flooding 0.2 at t=0
+#V2 F 0.3            ; Vertex 2, probability of flooding 0.4 at t=0
+#V3 F 0.4
+#V4 F 0.5
+
+#Ppersistence 0.9    ; Set persistence probability to 0.9
+
+#E1 1 2 W1
+#E2 2 3 W3
+#E3 3 4 W2
+#E4 2 4 W4
+#E5 3 1 W1
