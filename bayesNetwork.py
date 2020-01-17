@@ -281,21 +281,72 @@ class bayesNetwork:
             print_info("\tP(" + str(bl_node) + " Blockage = True) = " + str(blockage_chances[0]))
 
     def query_pathNotBlocked(self, path, evidence_list):
-        # finalProb = 1
+        finalProb = 1
         ev_list = copy.copy(evidence_list)
-        v1, v2 = self.getEdgeVertexesVariables(path[0])
-        finalProb = self.enumerate_ask(v1, ev_list)[1]
-        ev_list.append(self.VarWithVal(v1, False))
-
+        if len(path) is 0:
+            return -1
+        if len(path) is 1:
+            v1, v2 = self.getEdgeVertexesVariables(path[0])
+            finalProb = self.enumerate_ask(v1, ev_list)[1]
+            ev_list.append(self.VarWithVal(v1, False))
+            finalProb = finalProb * self.enumerate_ask(path[0], ev_list)[1]
+            ev_list.append(self.VarWithVal(path[0], False))
+            finalProb = finalProb * self.enumerate_ask(v2, ev_list)[1]
+            return finalProb
+        i = 0
         for edge in path:
-            v1, v2 = self.getEdgeVertexesVariables(edge)
+            edge1_v1, edge1_v2, edge2_v1, edge2_v2 = self.order2edges(path[i], path[i+1])
+            if i is 0:
+                finalProb = finalProb * self.enumerate_ask(edge1_v1, ev_list)[1]
+                ev_list.append(self.VarWithVal(edge1_v1, False))
             finalProb = finalProb * self.enumerate_ask(edge, ev_list)[1]
             ev_list.append(self.VarWithVal(edge, False))
-            # val = self.enumerate_ask(v2, evidence_list)[1]
-            finalProb = finalProb * self.enumerate_ask(v2, ev_list)[1]
-            ev_list.append(self.VarWithVal(v2, False))
+            finalProb = finalProb * self.enumerate_ask(edge1_v2, ev_list)[1]
+            ev_list.append(self.VarWithVal(edge1_v2, False))
+            i += 1
+            if i+1 is len(path):
+                finalProb = finalProb * self.enumerate_ask(path[i], ev_list)[1]
+                ev_list.append(self.VarWithVal(path[i], False))
+                finalProb = finalProb * self.enumerate_ask(edge2_v2, ev_list)[1]
+                ev_list.append(self.VarWithVal(edge2_v2, False))
+                return finalProb
 
-        return finalProb
+
+    def order2edges(self, edge1, edge2):
+        edge1_v1, edge1_v2 = self.getEdgeVertexesVariables(edge1)
+        edge2_v1, edge2_v2 = self.getEdgeVertexesVariables(edge2)
+
+        if edge1_v2.__eq__(edge2_v1):
+            return edge1_v1, edge1_v2, edge2_v1,edge2_v2
+        else:
+            if edge1_v2.__eq__(edge2_v2):
+                return edge1_v1, edge1_v2, edge2_v2, edge2_v1
+            else:
+                if edge1_v1.__eq__(edge2_v1):
+                    return edge1_v2, edge1_v1, edge2_v1, edge2_v2
+                else:
+                    return edge1_v2, edge1_v1, edge2_v2, edge2_v1
+
+    def getBestRout(self, v1, v2, evidence_list):
+        vertives_path = self.env_graph.get_paths(v1, v2, [v1], [])
+        bestPathProb = 0
+        bestPath = -1
+        for path in vertives_path:
+            edge_path = self.env_graph.convert_vertexes_to_edges(path)
+            edges_path_bayes_node_format = self.convert_graph_path_to_bayes_type(edge_path, 1)
+            prob = self.query_pathNotBlocked(edges_path_bayes_node_format, evidence_list)
+            if prob > bestPathProb:
+                bestPathProb = prob
+                bestPath = path
+        return path, bestPathProb
+
+    def convert_graph_path_to_bayes_type(self, path, time):
+        bayes_path = []
+        for item in path:
+            bayesName = str(item) + str(time)
+            bayesNode = self.getBayesNodeByName(bayesName)
+            bayes_path.append(bayesNode)
+        return bayes_path
 
     def getBayesNode(self, n_type, index, time=0):
         for node in self.networkObjects:
@@ -305,6 +356,12 @@ class bayesNetwork:
 
     def getVars(self):
         return self.networkObjects
+
+    def get_path_str(self, path):
+        retStr = ""
+        for item in path:
+            retStr += str(item) + " "
+        return retStr
 
     def printGraph(self):
         self.sort_network_objects()

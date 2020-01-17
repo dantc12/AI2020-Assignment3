@@ -195,6 +195,43 @@ class Graph:
                     paths.append(further_path)
         return paths
 
+    def get_paths(self, source_vertex, dest_vertex, curr_path, path_list):
+        if source_vertex.__eq__(dest_vertex):
+            #curr_path.append(dest_vertex)
+            path_list.append(curr_path)
+            return path_list
+
+        for v in self.get_connected_vertex(source_vertex):
+            if v not in curr_path:
+                pathCopy = deepcopy(curr_path)
+                pathCopy.append(v)
+                self.get_paths(v, dest_vertex, pathCopy, path_list)
+        return path_list
+
+    def convert_vertexes_to_edges(self, path):
+        src = path[0]
+        edges_path = []
+        i=0
+        for v in path:
+            try:
+                edges_path.append(self.get_edge(src, path[i+1]))
+            except:
+                return edges_path
+                break
+            src = path[i+1]
+            i += 1
+        return edges_path
+
+
+    def get_connected_vertex(self, v):
+        verticesList = []
+        for e in self.edges:
+            if e.vertex_1.__eq__(v):
+                verticesList.append(e.vertex_2)
+            if e.vertex_2.__eq__(v):
+                verticesList.append(e.vertex_1)
+        return verticesList
+
 
     # def get_people_array(self):
     #     res = [0] * len(self.vertices)

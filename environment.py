@@ -83,13 +83,25 @@ class Environment:
                     res = self.bayesNet.query_pathNotBlocked(path, evidenceList)
                     print_info("P(Path not blocked = True) = " + str(res))
                 elif query_choice == 4:
-                    # best_p = 0
-                    # for i in range(len(self.graph.vertices)):
-                    #     for j in range(i+1, len(self.graph.vertices)):
+                    print_query("Enter 2 vertices:")
+                    print_query("\tFor example: V1 V4")
+                    pathElements = str(input()).split()
+                    v1 = self.graph.get_vertex_from_string(pathElements[0])
+                    v2 = self.graph.get_vertex_from_string(pathElements[1])
+                    path, prob = self.bayesNet.getBestRout(v1, v2, evidenceList)
+                    print_query("Best path is: " + self.bayesNet.get_path_str(path) + " with probability: " + str(prob))
+                    X=1
                     pass
 
             elif inp == 3:
                 evidenceList = []
+                paths = self.graph.get_paths(self.graph.get_vertex(1), self.graph.get_vertex(4), [self.graph.get_vertex(1)], [])
+                for p in paths:
+                    if p is -1:
+                        continue
+                    print("new path:")
+                    for v in p:
+                        print(v.__str__())
 
 
     ###############################
