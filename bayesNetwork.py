@@ -87,12 +87,12 @@ class bayesNetwork:
                 elif len(self.parents) == 1:
                     print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = True) = " +
                                str(self.probabilityTable['1']))
-                    print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = True) = " +
-                               str(1 - self.probabilityTable['1']))
+                    # print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = True) = " +
+                    #            str(1 - self.probabilityTable['1']))
                     print_info("\tP(Flooding = True | Flooding " + str(self.parents[0]) + " = False) = " +
                                str(self.probabilityTable['0']))
-                    print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = False) = " +
-                               str(1 - self.probabilityTable['0']))
+                    # print_info("\tP(Flooding = False | Flooding " + str(self.parents[0]) + " = False) = " +
+                    #            str(1 - self.probabilityTable['0']))
             else:  # 2 Parents
                 print_info("EDGE " + str(self.index) + ", time " + str(self.time) + ":")
                 for pos_vals in [(True, True), (True, False), (False, True), (False, False)]:
@@ -209,23 +209,24 @@ class bayesNetwork:
                 return res_prob_table
 
         # Choosing the relevant nodes
-        relevant_vars = []
-        tmp_n_queue = [query]
-        while tmp_n_queue:
-            tmp_n = tmp_n_queue[0]
-            relevant_vars = tmp_n.parents + relevant_vars
-            tmp_n_queue += tmp_n.parents
-            tmp_n_queue.remove(tmp_n_queue[0])
-        relevant_vars += [query]
-        tmp_n_queue = [query]
-        while tmp_n_queue:
-            tmp_n = tmp_n_queue[0]
-            relevant_vars += tmp_n.children
-            tmp_n_queue += tmp_n.children
-            tmp_n_queue.remove(tmp_n_queue[0])
-        relevant_vars.sort()
+        # relevant_vars = []
+        # tmp_n_queue = [query]
+        # while tmp_n_queue:
+        #     tmp_n = tmp_n_queue[0]
+        #     relevant_vars = tmp_n.parents + relevant_vars
+        #     tmp_n_queue += tmp_n.parents
+        #     tmp_n_queue.remove(tmp_n_queue[0])
+        # relevant_vars += [query]
+        # tmp_n_queue = [query]
+        # while tmp_n_queue:
+        #     tmp_n = tmp_n_queue[0]
+        #     relevant_vars += tmp_n.children
+        #     tmp_n_queue += tmp_n.children
+        #     tmp_n_queue.remove(tmp_n_queue[0])
+        # relevant_vars.sort()
         # relevant_vars = query.parents + [query] + query.children
-        # relevant_vars = self.getVars()
+        relevant_vars = self.getVars()
+        relevant_vars.sort()
 
         # Results coming in for each option of query var
         res_prob_table[0] = self.enumerate_all(relevant_vars, ev_1)  # True
@@ -287,8 +288,8 @@ class bayesNetwork:
             return -1
         if len(path) is 1:
             v1, v2 = self.getEdgeVertexesVariables(path[0])
-            finalProb = self.enumerate_ask(v1, ev_list)[1]
-            ev_list.append(self.VarWithVal(v1, False))
+            # finalProb = self.enumerate_ask(v1, ev_list)[1]
+            # ev_list.append(self.VarWithVal(v1, False))
             finalProb = finalProb * self.enumerate_ask(path[0], ev_list)[1]
             ev_list.append(self.VarWithVal(path[0], False))
             finalProb = finalProb * self.enumerate_ask(v2, ev_list)[1]
@@ -296,21 +297,20 @@ class bayesNetwork:
         i = 0
         for edge in path:
             edge1_v1, edge1_v2, edge2_v1, edge2_v2 = self.order2edges(path[i], path[i+1])
-            if i is 0:
-                finalProb = finalProb * self.enumerate_ask(edge1_v1, ev_list)[1]
-                ev_list.append(self.VarWithVal(edge1_v1, False))
+            # if i is 0:
+                # finalProb = finalProb * self.enumerate_ask(edge1_v1, ev_list)[1]
+                # ev_list.append(self.VarWithVal(edge1_v1, False))
             finalProb = finalProb * self.enumerate_ask(edge, ev_list)[1]
             ev_list.append(self.VarWithVal(edge, False))
-            finalProb = finalProb * self.enumerate_ask(edge1_v2, ev_list)[1]
-            ev_list.append(self.VarWithVal(edge1_v2, False))
+            # finalProb = finalProb * self.enumerate_ask(edge1_v2, ev_list)[1]
+            # ev_list.append(self.VarWithVal(edge1_v2, False))
             i += 1
             if i+1 is len(path):
                 finalProb = finalProb * self.enumerate_ask(path[i], ev_list)[1]
                 ev_list.append(self.VarWithVal(path[i], False))
-                finalProb = finalProb * self.enumerate_ask(edge2_v2, ev_list)[1]
-                ev_list.append(self.VarWithVal(edge2_v2, False))
+                # finalProb = finalProb * self.enumerate_ask(edge2_v2, ev_list)[1]
+                # ev_list.append(self.VarWithVal(edge2_v2, False))
                 return finalProb
-
 
     def order2edges(self, edge1, edge2):
         edge1_v1, edge1_v2 = self.getEdgeVertexesVariables(edge1)
@@ -327,18 +327,18 @@ class bayesNetwork:
                 else:
                     return edge1_v2, edge1_v1, edge2_v2, edge2_v1
 
-    def getBestRout(self, v1, v2, evidence_list):
-        vertives_path = self.env_graph.get_paths(v1, v2, [v1], [])
+    def getBestRoute(self, v1, v2, evidence_list):
+        vertices_path = self.env_graph.get_paths(v1, v2, [v1], [])
         bestPathProb = 0
         bestPath = -1
-        for path in vertives_path:
+        for path in vertices_path:
             edge_path = self.env_graph.convert_vertexes_to_edges(path)
-            edges_path_bayes_node_format = self.convert_graph_path_to_bayes_type(edge_path, 1)
+            edges_path_bayes_node_format = self.convert_graph_path_to_bayes_type(edge_path, 0)
             prob = self.query_pathNotBlocked(edges_path_bayes_node_format, evidence_list)
             if prob > bestPathProb:
                 bestPathProb = prob
                 bestPath = path
-        return path, bestPathProb
+        return bestPath, bestPathProb
 
     def convert_graph_path_to_bayes_type(self, path, time):
         bayes_path = []

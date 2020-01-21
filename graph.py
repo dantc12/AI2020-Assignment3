@@ -217,11 +217,9 @@ class Graph:
                 edges_path.append(self.get_edge(src, path[i+1]))
             except:
                 return edges_path
-                break
             src = path[i+1]
             i += 1
         return edges_path
-
 
     def get_connected_vertex(self, v):
         verticesList = []
@@ -231,20 +229,6 @@ class Graph:
             if e.vertex_2.__eq__(v):
                 verticesList.append(e.vertex_1)
         return verticesList
-
-
-    # def get_people_array(self):
-    #     res = [0] * len(self.vertices)
-    #     for v in self.vertices:
-    #         if not v.is_shelter():
-    #             res[v.index-1] = v.ppl_count
-    #     return res
-
-    # def get_people_array_shelters_included(self):
-    #     res = [0] * len(self.vertices)
-    #     for v in self.vertices:
-    #         res[v.index-1] = v.ppl_count
-    #     return res
 
     def __str__(self):
         s = str(self.vertices[0]) + "(P " + str(self.vertices[0].pv) + ", "
@@ -266,13 +250,3 @@ class Graph:
         for e in self.edges[1:]:
             s = s + "\n" + str(e) + ": " + str(e.vertex_1) + " -" + str(e.weight) + "- " + str(e.vertex_2)
         return s
-
-    # def print_vertices_info(self):
-    #     for v in self.vertices:
-    #         s = "V" + str(v.index) + ": deadline is " + str(v.deadline) + ", "
-    #         if v.is_shelter():
-    #             s = s + "is a shelter, "
-    #         else:
-    #             s = s + "has " + str(v.v_type) + " people in it, "
-    #         s = s + "and has " + str(len(v.connected_edges)) + " roads connected to it."
-    #         print s

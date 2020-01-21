@@ -5,7 +5,7 @@
 #V3 F 0.4
 #V4 F 0.5
 
-#Ppersistence 0.9    ; Set persistence probability to 0.9
+#Ppersistence 0.7    ; Set persistence probability to 0.9
 
 #E1 1 2 W1
 #E2 2 3 W3
